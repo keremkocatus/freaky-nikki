@@ -1,13 +1,132 @@
-﻿<Window x:Class="FreakyNikki.MainWindow"
+<Window x:Class="FreakyNikki.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FreakyNikki"
+        xmlns:vm="clr-namespace:FreakyNikki.ViewModels"
         mc:Ignorable="d"
-        Title="Freaky Nikki" Height="480" Width="420"
-        WindowStartupLocation="CenterScreen">
-    <Grid>
+        Title="Freaky Nikki"
+        Width="420" Height="560"
+        MinWidth="380" MinHeight="420"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Brush.Background}"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Ideal"
+        d:DataContext="{d:DesignInstance vm:MainViewModel}">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <vm:StateToBrushConverter x:Key="StateToBrush" />
+        <vm:DelayLabelConverter x:Key="DelayLabel" />
+        <vm:InverseBoolConverter x:Key="InverseBool" />
+
+        <DataTemplate DataType="{x:Type vm:DeviceRowViewModel}">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Header row: status dot, checkbox, name, default badge -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse Grid.Column="0" Width="10" Height="10" VerticalAlignment="Center"
+                                 Fill="{Binding State, Converter={StaticResource StateToBrush}}" />
+
+                        <CheckBox Grid.Column="1" Margin="12,0,10,0"
+                                  Style="{StaticResource ModernCheckBox}"
+                                  IsChecked="{Binding Enabled, Mode=TwoWay}"
+                                  IsEnabled="{Binding IsControllable}"
+                                  VerticalAlignment="Center" />
+
+                        <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center"
+                                   FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+
+                        <Border Grid.Column="3" VerticalAlignment="Center"
+                                Background="{DynamicResource Brush.SurfaceHover}" CornerRadius="6"
+                                Padding="8,3" Visibility="{Binding IsDefault, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Default · playing" Style="{StaticResource Caption}" />
+                        </Border>
+                    </Grid>
+
+                    <!-- Controls: hidden for the (locked) default device -->
+                    <Grid Grid.Row="1" Margin="0,12,0,0"
+                          Visibility="{Binding IsControllable, Converter={StaticResource BoolToVis}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="52" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="56" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Volume" Style="{StaticResource Caption}"
+                                   VerticalAlignment="Center" />
+                        <Slider Grid.Row="0" Grid.Column="1" Style="{StaticResource ModernSlider}"
+                                Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.1"
+                                Value="{Binding Volume, Mode=TwoWay}"
+                                IsEnabled="{Binding Enabled}" VerticalAlignment="Center" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Delay" Style="{StaticResource Caption}"
+                                   VerticalAlignment="Center" Margin="0,10,0,0" />
+                        <Slider Grid.Row="1" Grid.Column="1" Style="{StaticResource ModernSlider}"
+                                Minimum="0" Maximum="500" SmallChange="5" LargeChange="25"
+                                Value="{Binding DelayMs, Mode=TwoWay}"
+                                IsEnabled="{Binding Enabled}" VerticalAlignment="Center" Margin="0,10,0,0" />
+                        <TextBlock Grid.Row="1" Grid.Column="2"
+                                   Text="{Binding DelayMs, Converter={StaticResource DelayLabel}}"
+                                   Style="{StaticResource Caption}" HorizontalAlignment="Right"
+                                   VerticalAlignment="Center" Margin="0,10,0,0" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Source="/Assets/app.ico" Width="30" Height="30"
+                   VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="Freaky Nikki" Style="{StaticResource Heading}" />
+                <TextBlock Text="{Binding StatusSummary}" Style="{StaticResource Caption}" Margin="0,1,0,0" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Start / Stop -->
+        <Button Grid.Row="1" Margin="0,18,0,0" Style="{StaticResource PrimaryButton}"
+                Command="{Binding StartStopCommand}" Content="{Binding StartStopText}" />
+
+        <!-- Section label -->
+        <TextBlock Grid.Row="2" Text="OUTPUT DEVICES" Margin="2,20,0,8"
+                   FontSize="11" FontWeight="SemiBold" Opacity="0.75"
+                   Foreground="{DynamicResource Brush.TextSecondary}" />
+
+        <!-- Device list -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+            <ItemsControl ItemsSource="{Binding Devices}" />
+        </ScrollViewer>
     </Grid>
 </Window>

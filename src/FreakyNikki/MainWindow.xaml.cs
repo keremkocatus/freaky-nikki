@@ -1,23 +1,21 @@
-﻿using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using FreakyNikki.Theme;
 
 namespace FreakyNikki;
 
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
+/// <summary>The single application window.</summary>
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    private readonly ThemeManager _theme;
+
+    public MainWindow(ThemeManager theme)
     {
+        _theme = theme;
         InitializeComponent();
+
+        // The window handle exists only after SourceInitialized — apply the dark
+        // title bar there, and again whenever the system theme flips.
+        SourceInitialized += (_, _) => _theme.ApplyWindowChrome(this);
+        _theme.ThemeChanged += () => _theme.ApplyWindowChrome(this);
     }
 }

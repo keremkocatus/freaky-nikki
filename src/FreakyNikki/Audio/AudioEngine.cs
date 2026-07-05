@@ -29,13 +29,29 @@ public sealed class AudioEngine : IDisposable
     /// <summary>ID of the current capture (default render) device, when running.</summary>
     public string? CaptureDeviceId => _captureDevice?.ID;
 
-    /// <summary>Enable an extra device for mirroring (or update it if already enabled).</summary>
+    /// <summary>
+    /// Enable an extra device for mirroring, or update it if already enabled.
+    /// Idempotent: a healthy channel is adjusted in place (no glitch), while a
+    /// missing or dropped one is (re)created — which is also how a device that
+    /// came back reconnects.
+    /// </summary>
     public void EnableOutput(string deviceId, float volume, int delayMs)
     {
         lock (_sync)
         {
             _configs[deviceId] = new OutputConfig(deviceId, volume, delayMs);
-            if (IsRunning)
+            if (!IsRunning)
+            {
+                return;
+            }
+
+            if (_channels.TryGetValue(deviceId, out OutputChannel? channel)
+                && channel.State is ChannelState.Playing or ChannelState.Starting)
+            {
+                channel.Volume = volume;
+                channel.DelayMs = delayMs;
+            }
+            else
             {
                 CreateChannel(deviceId, volume, delayMs);
             }

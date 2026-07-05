@@ -10,6 +10,9 @@ public sealed class DeviceSetting
     public float Volume { get; set; } = 1f;
 
     public int DelayMs { get; set; }
+
+    /// <summary>Last-seen friendly name, for display when the device is offline.</summary>
+    public string? Name { get; set; }
 }
 
 /// <summary>Root settings document stored at %AppData%\FreakyNikki\settings.json.</summary>
