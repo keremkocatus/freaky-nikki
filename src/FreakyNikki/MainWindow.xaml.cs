@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using FreakyNikki.Theme;
 
 namespace FreakyNikki;
@@ -17,5 +19,16 @@ public partial class MainWindow : Window
         // title bar there, and again whenever the system theme flips.
         SourceInitialized += (_, _) => _theme.ApplyWindowChrome(this);
         _theme.ThemeChanged += () => _theme.ApplyWindowChrome(this);
+    }
+
+    /// <summary>Commit the delay text box (and drop focus) when Enter is pressed.</summary>
+    private void OnDelayKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && sender is TextBox box)
+        {
+            box.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+            Keyboard.ClearFocus();
+            e.Handled = true;
+        }
     }
 }

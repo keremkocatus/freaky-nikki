@@ -24,23 +24,3 @@ public sealed class StateToBrushConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
-
-/// <summary>Formats a delay in ms as a short label, e.g. "120 ms".</summary>
-public sealed class DelayLabelConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => $"{System.Convert.ToInt32(value)} ms";
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotSupportedException();
-}
-
-/// <summary>Inverts a boolean (for enabling controls when NOT running, etc.).</summary>
-public sealed class InverseBoolConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is bool b && !b;
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is bool b && !b;
-}

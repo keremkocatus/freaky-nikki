@@ -12,6 +12,8 @@ namespace FreakyNikki.ViewModels;
 /// </summary>
 public sealed class MainViewModel : ViewModelBase, IDisposable
 {
+    private const int DefaultBluetoothDelayMs = 150;
+
     private readonly AudioEngine _engine;
     private readonly DeviceMonitor _monitor;
     private readonly SettingsStore _store;
@@ -135,6 +137,12 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
                     r.Volume = saved.Volume;
                     r.DelayMs = saved.DelayMs;
                 });
+            }
+            else if (!info.IsDefault)
+            {
+                // First time we've seen this device: pre-fill a sensible delay.
+                // Bluetooth lags the wired default by ~100–250 ms; wired needs none.
+                row.SetSilently(r => r.DelayMs = info.IsBluetooth ? DefaultBluetoothDelayMs : 0);
             }
 
             if (info.IsDefault)

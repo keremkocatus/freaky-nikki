@@ -81,7 +81,8 @@ public sealed class DeviceRowViewModel : ViewModelBase
         get => _delayMs;
         set
         {
-            if (SetProperty(ref _delayMs, value) && !_suppress)
+            int clamped = Math.Clamp(value, 0, 500);
+            if (SetProperty(ref _delayMs, clamped) && !_suppress)
             {
                 DelayChanged?.Invoke(this);
             }

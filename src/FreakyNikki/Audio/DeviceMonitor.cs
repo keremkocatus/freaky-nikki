@@ -11,6 +11,11 @@ namespace FreakyNikki.Audio;
 /// </summary>
 public sealed class DeviceMonitor : IMMNotificationClient, IDisposable
 {
+    // PKEY_Device_EnumeratorName — tells us the bus a device sits on ("BTHENUM"
+    // for Bluetooth), used to pick a sensible default delay.
+    private static readonly Guid EnumeratorNameKey = new("A45C254E-DF1C-4EFD-8020-67D146A850E0");
+    private const int EnumeratorNamePropertyId = 24;
+
     private readonly MMDeviceEnumerator _enumerator = new();
     private bool _registered;
     private bool _disposed;
@@ -37,7 +42,11 @@ public sealed class DeviceMonitor : IMMNotificationClient, IDisposable
         {
             using (device)
             {
-                devices.Add(new DeviceInfo(device.ID, device.FriendlyName, device.ID == defaultId));
+                devices.Add(new DeviceInfo(
+                    device.ID,
+                    device.FriendlyName,
+                    device.ID == defaultId,
+                    IsBluetooth(device)));
             }
         }
 
@@ -62,6 +71,29 @@ public sealed class DeviceMonitor : IMMNotificationClient, IDisposable
         {
             return null;
         }
+    }
+
+    private static bool IsBluetooth(MMDevice device)
+    {
+        try
+        {
+            PropertyStore props = device.Properties;
+            for (int i = 0; i < props.Count; i++)
+            {
+                PropertyStoreProperty p = props[i];
+                if (p.Key.formatId == EnumeratorNameKey && p.Key.propertyId == EnumeratorNamePropertyId)
+                {
+                    return p.Value is string name
+                        && name.Contains("BTH", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+        catch
+        {
+            // Some endpoints don't expose the property store; fall back to the name.
+        }
+
+        return device.FriendlyName.Contains("Bluetooth", StringComparison.OrdinalIgnoreCase);
     }
 
     // --- IMMNotificationClient (called on a system thread) ---
