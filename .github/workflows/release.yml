@@ -18,33 +18,36 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
-      - name: Publish (framework-dependent)
-        run: >
-          dotnet publish src/FreakyNikki/FreakyNikki.csproj
-          -c Release -r win-x64 --self-contained false
-          -p:PublishSingleFile=true
-          -o publish/fd
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk --version 1.2.0
 
       - name: Publish (self-contained)
         run: >
           dotnet publish src/FreakyNikki/FreakyNikki.csproj
           -c Release -r win-x64 --self-contained true
-          -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
-          -o publish/sc
+          -o publish
 
-      - name: Stage artifacts
+      - name: Build installer + update packages
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item publish/fd/FreakyNikki.exe dist/FreakyNikki.exe
-          Copy-Item publish/sc/FreakyNikki.exe dist/FreakyNikki-selfcontained.exe
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          # Pull previous releases so Velopack can produce delta updates (first
+          # release has none — ignore the failure).
+          vpk download github --repoUrl "${{ github.server_url }}/${{ github.repository }}" --token "${{ secrets.GITHUB_TOKEN }}" 2>$null
+          vpk pack `
+            --packId FreakyNikki `
+            --packVersion $version `
+            --packDir publish `
+            --mainExe FreakyNikki.exe `
+            --packTitle "Freaky Nikki" `
+            --icon src/FreakyNikki/Assets/app.ico
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          generate_release_notes: true
-          body_path: CHANGELOG.md
-          files: |
-            dist/FreakyNikki.exe
-            dist/FreakyNikki-selfcontained.exe
+      - name: Publish GitHub release
+        shell: pwsh
+        run: |
+          vpk upload github `
+            --repoUrl "${{ github.server_url }}/${{ github.repository }}" `
+            --token "${{ secrets.GITHUB_TOKEN }}" `
+            --publish `
+            --releaseName "Freaky Nikki ${{ github.ref_name }}" `
+            --tag "${{ github.ref_name }}"

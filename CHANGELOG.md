@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial implementation: mirror system audio to multiple output devices via
   WASAPI loopback capture.
-- Per-device volume and delay (0–500 ms) controls.
+- Per-device volume and delay controls; delay is editable to the millisecond and
+  pre-fills a sensible default (~150 ms) for Bluetooth devices.
 - Device hot-plug handling and automatic reconnection.
 - Minimal, modern UI that follows the Windows light/dark theme and accent color.
 - Tray icon with show / start-stop / quit.
 - Persistent per-device settings in `%AppData%\FreakyNikki\settings.json`.
+- Windows installer with automatic updates from GitHub Releases (via Velopack).
 
 [Unreleased]: https://github.com/keremkocatus/freaky-nikki/commits/main

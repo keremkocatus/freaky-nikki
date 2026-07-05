@@ -47,18 +47,23 @@ Because Bluetooth devices each add their own latency, every extra device has a
 - 🎚️ Mirror system audio to multiple output devices at once
 - 🔊 Per-device **volume** and **delay** (0–500 ms) for lip-sync / echo fixing
 - 🔌 Hot-plug aware — unplug/replug a device and it reconnects on its own
+- 🎯 Smart default delay for Bluetooth devices, editable down to the millisecond
 - 🎨 Minimal, modern UI that follows your Windows **light/dark** theme and accent
 - 🪟 Lives in the tray; your device setup is remembered between runs
-- 📦 Single portable `.exe` — no installer, no driver, no admin
+- 📦 One-click installer that **auto-updates** — no driver, no admin rights
 
-## Download & run
+## Download & install
 
 Grab the latest build from the [Releases](../../releases) page:
 
-| Variant | Size | Needs |
-|---|---|---|
-| `FreakyNikki.exe` (framework-dependent) | ~small | [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) |
-| `FreakyNikki-selfcontained.exe` | ~large | nothing — fully standalone |
+- **`FreakyNikki-win-Setup.exe`** (recommended) — a small installer. No admin
+  rights needed (installs to your user profile), and the app **auto-updates**
+  itself from GitHub afterwards. When a new version is downloaded, an
+  *"Update to vX.Y.Z"* button appears in the window — click it to restart into it.
+- **`FreakyNikki-win-Portable.zip`** — unzip and run `FreakyNikki.exe`, no install.
+  (Portable builds don't auto-update.)
+
+Both are self-contained — you don't need the .NET runtime installed.
 
 Then: run it → tick an extra output device → hit **Start**.
 

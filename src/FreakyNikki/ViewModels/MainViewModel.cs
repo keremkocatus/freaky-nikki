@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using FreakyNikki.Audio;
 using FreakyNikki.Settings;
+using FreakyNikki.Update;
 
 namespace FreakyNikki.ViewModels;
 
@@ -18,21 +19,36 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     private readonly DeviceMonitor _monitor;
     private readonly SettingsStore _store;
     private readonly AppSettings _settings;
+    private readonly UpdateService? _updates;
     private readonly Dispatcher _dispatcher;
     private readonly DispatcherTimer _saveTimer;
 
     private bool _isRunning;
+    private bool _updateAvailable;
+    private string _updateText = string.Empty;
     private bool _disposed;
 
-    public MainViewModel(AudioEngine engine, DeviceMonitor monitor, SettingsStore store, AppSettings settings)
+    public MainViewModel(AudioEngine engine, DeviceMonitor monitor, SettingsStore store,
+        AppSettings settings, UpdateService? updates = null)
     {
         _engine = engine;
         _monitor = monitor;
         _store = store;
         _settings = settings;
+        _updates = updates;
         _dispatcher = Dispatcher.CurrentDispatcher;
 
         StartStopCommand = new RelayCommand(ToggleRun);
+        UpdateCommand = new RelayCommand(() => _updates?.ApplyAndRestart(), () => UpdateAvailable);
+
+        if (_updates is not null)
+        {
+            _updates.UpdateReady += version => _dispatcher.BeginInvoke(() =>
+            {
+                UpdateText = $"Update to v{version} — click to restart";
+                UpdateAvailable = true;
+            });
+        }
 
         _saveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
         _saveTimer.Tick += (_, _) => { _saveTimer.Stop(); _store.Save(_settings); };
@@ -48,6 +64,29 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     public ObservableCollection<DeviceRowViewModel> Devices { get; } = new();
 
     public RelayCommand StartStopCommand { get; }
+
+    public RelayCommand UpdateCommand { get; }
+
+    public bool UpdateAvailable
+    {
+        get => _updateAvailable;
+        private set
+        {
+            if (SetProperty(ref _updateAvailable, value))
+            {
+                UpdateCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public string UpdateText
+    {
+        get => _updateText;
+        private set => SetProperty(ref _updateText, value);
+    }
+
+    /// <summary>Kick off a background update check (no-op in dev builds).</summary>
+    public void StartUpdateCheck() => _ = _updates?.CheckAsync();
 
     public string StartStopText => IsRunning ? "Stop" : "Start";
 

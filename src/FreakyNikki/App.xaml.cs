@@ -7,6 +7,7 @@ using FreakyNikki.Diagnostics;
 using FreakyNikki.Settings;
 using FreakyNikki.Theme;
 using FreakyNikki.Tray;
+using FreakyNikki.Update;
 using FreakyNikki.ViewModels;
 
 namespace FreakyNikki;
@@ -20,6 +21,9 @@ public partial class App : System.Windows.Application
 {
     private const string MutexName = "FreakyNikki.SingleInstance.v1";
     private const string ShowEventName = "FreakyNikki.ShowWindow.v1";
+
+    // GitHub repo that hosts the releases the auto-updater reads from.
+    private const string RepoUrl = "https://github.com/keremkocatus/freaky-nikki";
 
     private Mutex? _mutex;
     private EventWaitHandle? _showEvent;
@@ -64,7 +68,8 @@ public partial class App : System.Windows.Application
 
         _engine = new AudioEngine();
         _monitor = new DeviceMonitor();
-        _viewModel = new MainViewModel(_engine, _monitor, store, settings);
+        var updates = new UpdateService(RepoUrl);
+        _viewModel = new MainViewModel(_engine, _monitor, store, settings, updates);
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
         _tray = new TrayIcon();
@@ -82,6 +87,7 @@ public partial class App : System.Windows.Application
         }
 
         StartShowListener();
+        _viewModel.StartUpdateCheck();
     }
 
     private void StartShowListener()

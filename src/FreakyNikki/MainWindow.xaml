@@ -101,6 +101,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
@@ -130,5 +131,10 @@
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
             <ItemsControl ItemsSource="{Binding Devices}" />
         </ScrollViewer>
+
+        <!-- Update banner (shown only when an update is downloaded and ready) -->
+        <Button Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource UpdateButton}"
+                Command="{Binding UpdateCommand}" Content="{Binding UpdateText}"
+                Visibility="{Binding UpdateAvailable, Converter={StaticResource BoolToVis}}" />
     </Grid>
 </Window>
