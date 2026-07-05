@@ -42,12 +42,14 @@ jobs:
             --packTitle "Freaky Nikki" `
             --icon src/FreakyNikki/Assets/app.ico
 
-      - name: Publish GitHub release
+      # Uploads the installer + update packages to a DRAFT GitHub release for
+      # review. Add --publish here (or click "Publish" on GitHub) to go live;
+      # the auto-updater only sees published releases.
+      - name: Upload draft GitHub release
         shell: pwsh
         run: |
           vpk upload github `
             --repoUrl "${{ github.server_url }}/${{ github.repository }}" `
             --token "${{ secrets.GITHUB_TOKEN }}" `
-            --publish `
             --releaseName "Freaky Nikki ${{ github.ref_name }}" `
             --tag "${{ github.ref_name }}"
