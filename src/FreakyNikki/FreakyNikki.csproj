@@ -22,10 +22,10 @@
     <Version>0.1.0</Version>
     <Copyright>Copyright © 2026 Kerem Kocatuş — MIT</Copyright>
 
-    <!-- Single-file publish defaults -->
+    <!-- Single-file publish defaults; compression is added per-variant on the
+         command line since it's only valid for the self-contained build. -->
     <SelfContained Condition="'$(PublishSingleFile)' == 'true' and '$(SelfContained)' == ''">false</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 
     <!-- WPF handles DPI via app.manifest; silence the WinForms-only DPI notice

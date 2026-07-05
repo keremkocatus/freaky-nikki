@@ -18,6 +18,10 @@ speaker and headphones at once.
 It uses Windows' built-in **WASAPI loopback** capture entirely in user-mode — so
 there is nothing to install into the OS, no signed kernel driver, and no reboot.
 
+<div align="center">
+  <img src="docs/screenshot.png" alt="Freaky Nikki window" width="380" />
+</div>
+
 ## How it works
 
 ```

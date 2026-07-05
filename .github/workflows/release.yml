@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Publish (framework-dependent)
+        run: >
+          dotnet publish src/FreakyNikki/FreakyNikki.csproj
+          -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true
+          -o publish/fd
+
+      - name: Publish (self-contained)
+        run: >
+          dotnet publish src/FreakyNikki/FreakyNikki.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
+          -o publish/sc
+
+      - name: Stage artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item publish/fd/FreakyNikki.exe dist/FreakyNikki.exe
+          Copy-Item publish/sc/FreakyNikki.exe dist/FreakyNikki-selfcontained.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          body_path: CHANGELOG.md
+          files: |
+            dist/FreakyNikki.exe
+            dist/FreakyNikki-selfcontained.exe
