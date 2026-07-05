@@ -41,6 +41,12 @@
     <Using Remove="System.Windows.Forms" />
   </ItemGroup>
 
+  <!-- Embed the icon as a WPF resource too (ApplicationIcon only sets the Win32
+       icon); the tray icon and header image load it via pack URI. -->
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>

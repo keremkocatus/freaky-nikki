@@ -108,12 +108,21 @@ public sealed class AudioEngine : IDisposable
                 return;
             }
 
-            _captureDevice = _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-            _capture = new WasapiLoopbackCapture(_captureDevice);
-            _capture.DataAvailable += OnDataAvailable;
-            _capture.RecordingStopped += OnRecordingStopped;
-            _capture.StartRecording();
-            IsRunning = true;
+            try
+            {
+                _captureDevice = _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                _capture = new WasapiLoopbackCapture(_captureDevice);
+                _capture.DataAvailable += OnDataAvailable;
+                _capture.RecordingStopped += OnRecordingStopped;
+                _capture.StartRecording();
+                IsRunning = true;
+            }
+            catch (Exception ex)
+            {
+                Diagnostics.Log.Error("Failed to start loopback capture", ex);
+                StopCapture();
+                return;
+            }
 
             foreach (OutputConfig cfg in _configs.Values.ToList())
             {
@@ -213,7 +222,14 @@ public sealed class AudioEngine : IDisposable
         }
 
         var channel = new OutputChannel(device, _capture.WaveFormat, volume, delayMs);
-        channel.StatusChanged += (_, e) => ChannelStatusChanged?.Invoke(deviceId, e.State, e.Message);
+        channel.StatusChanged += (_, e) =>
+        {
+            if (e.State == ChannelState.Error)
+            {
+                Diagnostics.Log.Error($"Channel '{channel.DeviceName}' failed: {e.Message}");
+            }
+            ChannelStatusChanged?.Invoke(deviceId, e.State, e.Message);
+        };
         _channels[deviceId] = channel;
         channel.Start();
     }

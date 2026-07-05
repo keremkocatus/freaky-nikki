@@ -96,7 +96,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
                 _engine.EnableOutput(row.Id, (float)row.Volume, row.DelayMs);
             }
             _engine.Start();
-            IsRunning = true;
+            IsRunning = _engine.IsRunning; // false if capture couldn't start
         }
 
         OnPropertyChanged(nameof(StatusSummary));
