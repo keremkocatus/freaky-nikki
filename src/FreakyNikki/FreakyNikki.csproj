@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <RuntimeIdentifier Condition="'$(PublishSingleFile)' == 'true'">win-x64</RuntimeIdentifier>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>FreakyNikki</AssemblyName>
+    <RootNamespace>FreakyNikki</RootNamespace>
+
+    <!-- Product metadata -->
+    <Product>Freaky Nikki</Product>
+    <Company>Kerem Kocatuş</Company>
+    <Authors>Kerem Kocatuş</Authors>
+    <Description>Play your Windows audio on multiple headphones at the same time.</Description>
+    <Version>0.1.0</Version>
+    <Copyright>Copyright © 2026 Kerem Kocatuş — MIT</Copyright>
+
+    <!-- Single-file publish defaults -->
+    <SelfContained Condition="'$(PublishSingleFile)' == 'true' and '$(SelfContained)' == ''">false</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+    <!-- WPF handles DPI via app.manifest; silence the WinForms-only DPI notice
+         that fires because UseWindowsForms is enabled for the tray icon. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+</Project>
