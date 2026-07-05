@@ -98,8 +98,14 @@ cd freaky-nikki
 dotnet run --project src/FreakyNikki
 ```
 
-See [design/plan.md](design/plan.md) for the architecture and roadmap, and
-[CONTRIBUTING.md](CONTRIBUTING.md) to help out.
+## Documentation
+
+- [docs/USAGE.md](docs/USAGE.md) — full usage guide: delay tuning, tray, long
+  sessions, troubleshooting.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — how it works: the loopback
+  pipeline, drift handling, the long-session watchdog, threading model.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — how to build and contribute.
+- [design/plan.md](design/plan.md) — original design notes and roadmap.
 
 ## Limitations
 
